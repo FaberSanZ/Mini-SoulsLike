@@ -1,4 +1,0 @@
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/imgui_x64-windows/debug/lib/imguid.lib
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/imgui_x64-windows/debug/share/imgui/imgui-config.cmake
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/imgui_x64-windows/debug/share/imgui/imgui-targets.cmake
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/imgui_x64-windows/debug/share/imgui/imgui-targets-debug.cmake

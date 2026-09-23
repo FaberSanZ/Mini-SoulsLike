@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/x64-windows/vcpkg/blds/detect_compiler/x64-windows-rel/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

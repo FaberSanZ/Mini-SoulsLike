@@ -1,8 +1,0 @@
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/simdjson.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/package.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/package_source.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/edit_cache.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/rebuild_cache.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/list_install_components.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/install.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/simdjson/x64-windows-dbg/CMakeFiles/install/local.dir

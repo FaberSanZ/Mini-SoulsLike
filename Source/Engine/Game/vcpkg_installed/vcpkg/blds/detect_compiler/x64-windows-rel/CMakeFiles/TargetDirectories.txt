@@ -1,2 +1,0 @@
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/detect_compiler/x64-windows-rel/CMakeFiles/edit_cache.dir
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/blds/detect_compiler/x64-windows-rel/CMakeFiles/rebuild_cache.dir

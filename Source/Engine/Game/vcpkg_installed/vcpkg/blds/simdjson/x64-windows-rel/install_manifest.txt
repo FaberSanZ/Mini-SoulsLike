@@ -1,8 +1,0 @@
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/include/simdjson.h
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/lib/simdjson.lib
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/bin/simdjson.dll
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/lib/cmake/simdjson/simdjson-config.cmake
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/lib/cmake/simdjson/simdjson-config-version.cmake
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/lib/cmake/simdjson/simdjsonTargets.cmake
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/lib/cmake/simdjson/simdjsonTargets-release.cmake
-C:/Git/2D Engine v1/Source/Engine/Game/vcpkg_installed/vcpkg/pkgs/simdjson_x64-windows/lib/pkgconfig/simdjson.pc
