@@ -211,8 +211,9 @@ public sealed class World
     public ref T Get<T>(Entity entity) where T : struct
     {
         ValidateAlive(entity);
-        if (!TryGetPool<T>(out ComponentPool<T>? pool)) throw new InvalidOperationException($"No component pool exists for {typeof(T).Name}.");
-        return ref pool.Get(entity.Id);
+        if (!TryGetPool<T>(out ComponentPool<T>? pool)) 
+            throw new InvalidOperationException($"No component pool exists for {typeof(T).Name}.");
+        return ref pool!.Get(entity.Id);
     }
 
     public bool Remove<T>(Entity entity) where T : struct

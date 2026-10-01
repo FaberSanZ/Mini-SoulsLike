@@ -57,6 +57,22 @@ public sealed class RenderSystem : IDisposable
     private long _jointUploadTicks;
     private long _drawSubmissionTicks;
 
+
+
+    private ID3D11VertexShader? _debugVertexShader;
+    private ID3D11PixelShader? _debugPixelShader;
+    private ID3D11Buffer? _debugVertexBuffer;
+    private ID3D11ShaderResourceView? _debugVertexView;
+
+    private DebugVertex[] _debugVertices = new DebugVertex[256];
+    private int _debugVertexCapacity = 256;
+
+    private struct DebugVertex
+    {
+        public Vector3 Position;
+        public Vector4 Color;
+    }
+
     public uint Width { get; private set; }
     public uint Height { get; private set; }
     public uint FrameCount { get; } = 2;
@@ -150,6 +166,101 @@ public sealed class RenderSystem : IDisposable
         _defaultMaterialBuffer = CreateMaterialBuffer(Vector4.One);
 
         SetCamera(Matrix4x4.CreateLookAt(new Vector3(0.0f, 5.0f, 15.0f), Vector3.Zero, Vector3.UnitY), Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 4.0f, Width / (float)Height, 0.1f, 1000.0f));
+
+
+        CreateDebugShaders();
+        CreateDebugVertexBuffer();
+    }
+
+    private void CreateDebugShaders()
+    {
+        ReadOnlyMemory<byte> vertexShaderByteCode = Compiler.CompileFromFile("DebugVertex.hlsl", "VS", "vs_5_0");
+        ReadOnlyMemory<byte> pixelShaderByteCode = Compiler.CompileFromFile("DebugPixel.hlsl", "PS", "ps_5_0");
+
+        _debugVertexShader = _device!.CreateVertexShader(vertexShaderByteCode.Span);
+        _debugPixelShader = _device.CreatePixelShader(pixelShaderByteCode.Span);
+    }
+
+    private void CreateDebugVertexBuffer()
+    {
+        uint stride = (uint)Unsafe.SizeOf<DebugVertex>();
+
+        _debugVertexBuffer = _device!.CreateBuffer(
+            stride * (uint)_debugVertexCapacity,
+            BindFlags.ShaderResource,
+            ResourceUsage.Dynamic,
+            CpuAccessFlags.Write,
+            ResourceOptionFlags.BufferStructured,
+            stride);
+
+        _debugVertexView = _device.CreateShaderResourceView(
+            _debugVertexBuffer,
+            new ShaderResourceViewDescription(
+                ShaderResourceViewDimension.Buffer,
+                Format.Unknown,
+                0,
+                (uint)_debugVertexCapacity));
+    }
+
+
+    private void EnsureDebugVertexCapacity(int required)
+    {
+        if (required <= _debugVertexCapacity)
+            return;
+
+        while (_debugVertexCapacity < required)
+            _debugVertexCapacity *= 2;
+
+        Array.Resize(ref _debugVertices, _debugVertexCapacity);
+
+        _debugVertexView?.Dispose();
+        _debugVertexBuffer?.Dispose();
+
+        CreateDebugVertexBuffer();
+    }
+
+
+    public void DrawDebugLines(IReadOnlyList<DebugLine> lines)
+    {
+        if (lines.Count == 0)
+            return;
+
+        int vertexCount = lines.Count * 2;
+
+        EnsureDebugVertexCapacity(vertexCount);
+
+        for (int i = 0; i < lines.Count; i++)
+        {
+            DebugLine line = lines[i];
+
+            _debugVertices[i * 2] = new DebugVertex
+            {
+                Position = line.A,
+                Color = line.Color
+            };
+
+            _debugVertices[i * 2 + 1] = new DebugVertex
+            {
+                Position = line.B,
+                Color = line.Color
+            };
+        }
+
+        _debugVertexBuffer!.SetData(_deviceContext!, _debugVertices.AsSpan(0, vertexCount), MapMode.WriteDiscard);
+
+        _deviceContext!.IASetPrimitiveTopology(PrimitiveTopology.LineList);
+
+        _deviceContext.VSSetShaderResource(3, _debugVertexView);
+        _deviceContext.VSSetShader(_debugVertexShader);
+        _deviceContext.PSSetShader(_debugPixelShader);
+
+        _deviceContext.Draw((uint)vertexCount, 0);
+
+        _deviceContext.VSSetShaderResource(3, null);
+
+        _deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
+        _deviceContext.VSSetShader(_vertexShader);
+        _deviceContext.PSSetShader(_pixelShader);
     }
 
     public void PrepareModel(Model model)

@@ -38,8 +38,26 @@ public static class EditorComponentInitializer
         {
             ref RigidBodyComponent component = ref world.Get<RigidBodyComponent>(entity);
             component.Type = BodyType.Dynamic;
+            component.Mass = 1.0f;
             component.LinearVelocity = Vector3.Zero;
-            component.LinearAcceleration = Vector3.Zero;
+            component.AngularVelocity = Vector3.Zero;
+            return;
+        }
+
+        if (type == typeof(BoxColliderComponent))
+        {
+            ref BoxColliderComponent component = ref world.Get<BoxColliderComponent>(entity);
+            component.Offset = Vector3.Zero;
+            component.Size = Vector3.One;
+            return;
+        }
+
+        if (type == typeof(CapsuleColliderComponent))
+        {
+            ref CapsuleColliderComponent component = ref world.Get<CapsuleColliderComponent>(entity);
+            component.Offset = Vector3.Zero;
+            component.Radius = 0.5f;
+            component.Length = 1.0f;
             return;
         }
 

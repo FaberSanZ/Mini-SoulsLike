@@ -31,6 +31,35 @@ public sealed class Game : GameBase
 
         SceneRuntime.Rebuild(world, Assets);
         ResetCamera(world);
+
+
+        foreach (Entity entity in world.Query<PlayerComponent, TransformComponent>())
+        {
+            ref TransformComponent transform = ref world.Get<TransformComponent>(entity);
+            transform.Position.Y = 3.0f;
+
+            ref RigidBodyComponent rigidbody = ref world.Set<RigidBodyComponent>(entity);
+            rigidbody.Type = BodyType.Dynamic;
+            rigidbody.Mass = 80.0f;
+            rigidbody.LinearVelocity = Vector3.Zero;
+            rigidbody.AngularVelocity = Vector3.Zero;
+
+            ref CapsuleColliderComponent collider = ref world.Set<CapsuleColliderComponent>(entity);
+            collider.Offset = new Vector3(0.0f, 0.9f, 0.0f);
+            collider.Radius = 0.45f;
+            collider.Length = 0.9f;
+        }
+
+        Entity ground = CreateEntity(world, "Ground");
+
+        ref TransformComponent groundTransform = ref world.Get<TransformComponent>(ground);
+        groundTransform.Position = new Vector3(0.0f, -0.5f, 0.0f);
+        groundTransform.Rotation = Quaternion.Identity;
+        groundTransform.Scale = Vector3.One;
+
+        ref BoxColliderComponent groundCollider = ref world.Set<BoxColliderComponent>(ground);
+        groundCollider.Offset = Vector3.Zero;
+        groundCollider.Size = new Vector3(40.0f, 1.0f, 40.0f);
     }
 
     protected override void OnSceneLoaded(World world)
@@ -83,6 +112,14 @@ public sealed class Game : GameBase
     protected override void OnDestroy(World world)
     {
         GameInput.SetMouseMode(MouseMode.Absolute);
+    }
+
+    protected override void OnDrawImGui(World world)
+    {
+        bool physicsDebug = PhysicsDebug.Enabled;
+
+        if (ImGuiNET.ImGui.Checkbox("Physics Debug", ref physicsDebug))
+            PhysicsDebug.Enabled = physicsDebug;
     }
 
     private void SetPlayerState(World world, Entity entity, ref PlayerComponent player, PlayerState state)

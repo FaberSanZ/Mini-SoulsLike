@@ -18,6 +18,8 @@ public abstract class GameBase : IDisposable
     private readonly ComponentRegistry _components = new();
     private readonly EditorSystem _editor = new();
 
+    private readonly PhysicsDebugSystem _physicsDebug = new();
+
     private AssetSystem? _assets;
     private ImGuiController? _imgui;
     private SceneSerializer? _serializer;
@@ -33,6 +35,8 @@ public abstract class GameBase : IDisposable
     protected SkeletonSystem Skeletons => _skeletons;
     protected PhysicsSystem Physics => _physics;
     protected SceneSystem Scenes => _scenes;
+    protected PhysicsDebugSystem PhysicsDebug => _physicsDebug;
+
     protected ComponentRegistry Components => _components;
     protected EditorSystem Editor => _editor;
     protected SceneSerializer Serializer => _serializer!;
@@ -98,11 +102,16 @@ public abstract class GameBase : IDisposable
                 {
                     World world = activeScene.World;
 
-                    if ((editorAction & EditorAction.PlayStarted) != 0) OnPlay(world);
+                    if ((editorAction & EditorAction.PlayStarted) != 0)
+                    {
+                        OnPlay(world);
+                        _physics.Rebuild(world);
+                    }
 
                     if ((editorAction & EditorAction.PlayStopped) != 0)
                     {
                         OnStop(world);
+                        _physics.Clear();
                         _editorCamera.Reset(world);
                     }
 

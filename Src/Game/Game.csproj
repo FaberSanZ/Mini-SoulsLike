@@ -18,6 +18,7 @@
 		<PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
 		<PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
 		<PackageReference Include="Vortice.DXGI" Version="3.8.3" />
+		<PackageReference Include="BepuPhysics" Version="2.5.0-beta.29" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -25,6 +26,9 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="KnightCharacter.glb">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="DebugPixel.hlsl">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="Pixel.hlsl">
@@ -37,6 +41,9 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="TestScene.json">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="DebugVertex.hlsl">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="Vertex.hlsl">

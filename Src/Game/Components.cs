@@ -75,11 +75,37 @@ public struct RigidBodyComponent
     [DataMember, Display("Body Type", "Physics", 0)]
     public BodyType Type;
 
-    [DataMember, Display("Linear Velocity", "Physics", 1)]
+    [DataMember, Display("Mass", "Physics", 1)]
+    public float Mass;
+
+    [DataMember, Display("Linear Velocity", "Physics", 2)]
     public Vector3 LinearVelocity;
 
-    [DataMember, Display("Linear Acceleration", "Physics", 2)]
-    public Vector3 LinearAcceleration;
+    [DataMember, Display("Angular Velocity", "Physics", 3)]
+    public Vector3 AngularVelocity;
+}
+
+[Component("Box Collider", "Physics")]
+public struct BoxColliderComponent
+{
+    [DataMember, Display("Offset", "Physics", 0)]
+    public Vector3 Offset;
+
+    [DataMember, Display("Size", "Physics", 1)]
+    public Vector3 Size;
+}
+
+[Component("Capsule Collider", "Physics")]
+public struct CapsuleColliderComponent
+{
+    [DataMember, Display("Offset", "Physics", 0)]
+    public Vector3 Offset;
+
+    [DataMember, Display("Radius", "Physics", 1)]
+    public float Radius;
+
+    [DataMember, Display("Length", "Physics", 2)]
+    public float Length;
 }
 
 [Component("Animation", "Animation")]
