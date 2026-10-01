@@ -37,11 +37,15 @@ public abstract class GameBase : IDisposable
     protected SceneSystem Scenes => _scenes;
     protected PhysicsDebugSystem PhysicsDebug => _physicsDebug;
 
+    private readonly TerrainSystem _terrain = new();
+
     protected ComponentRegistry Components => _components;
     protected EditorSystem Editor => _editor;
     protected SceneSerializer Serializer => _serializer!;
     protected AssetSystem Assets => _assets!;
     protected ImGuiController ImGui => _imgui!;
+    protected TerrainSystem Terrain => _terrain;
+
 
     protected virtual string Title => "Kairo";
     protected virtual uint Width => 1640;
@@ -166,7 +170,7 @@ public abstract class GameBase : IDisposable
     {
         _window.Initialize(new GameWindow.Config { Title = Title, Width = Width, Height = Height, Resizable = Resizable });
         _renderer.Initialize(_window.Handle, _window.ClientWidth, _window.ClientHeight);
-
+        _terrain.Initialize(_renderer.Device);
         _assets = new AssetSystem(_renderer.Device);
         _imgui = new ImGuiController(_renderer.Device, _renderer.DeviceContext);
 
@@ -245,6 +249,12 @@ public abstract class GameBase : IDisposable
 
             _renderer.DrawModel(model.Model, in instance, skeletonState);
         }
+
+        if (_terrain.Mesh is not null)
+        {
+            _renderer.DrawTerrain(_terrain.Mesh, Matrix4x4.Identity, new Vector4(0.25f, 0.55f, 0.20f, 1.0f));
+        }
+
 
         _physicsDebug.Draw(world, _renderer);
     }

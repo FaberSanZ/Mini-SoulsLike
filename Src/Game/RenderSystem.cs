@@ -279,6 +279,38 @@ public sealed class RenderSystem : IDisposable
         _deviceContext.PSSetShader(_pixelShader);
     }
 
+
+    public void DrawTerrain(TerrainMesh terrain, Matrix4x4 world, Vector4 color)
+    {
+        if (terrain.Vertex.View is null || terrain.Index.Buffer is null)
+            return;
+
+        _singleInstance[0].World = Matrix4x4.Transpose(world);
+        _singleInstance[0].BaseColor = color;
+
+        _instanceBuffer!.SetData(_deviceContext!, _singleInstance, MapMode.WriteDiscard);
+
+        _deviceContext!.VSSetShaderResource(0, terrain.Vertex.View);
+        _deviceContext.VSSetShaderResource(1, _instanceBufferView);
+        _deviceContext.VSSetShaderResource(2, _identityJointView);
+
+        _deviceContext.VSSetConstantBuffer(1, _defaultMaterialBuffer);
+
+        _deviceContext.IASetIndexBuffer(terrain.Index.Buffer, Format.R32_UInt, 0);
+
+        _deviceContext.DrawIndexed(terrain.Index.Count, 0, 0);
+
+        DrawCalls++;
+        RenderedInstances++;
+        RenderedTriangles += terrain.Index.Count / 3;
+
+        _boundVertexView = null;
+        _boundIndexBuffer = null;
+        _boundJointView = null;
+        _boundMaterialBuffer = null;
+    }
+
+
     public void PrepareModel(Model model)
     {
         if (_materialBuffers.ContainsKey(model)) return;

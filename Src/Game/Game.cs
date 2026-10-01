@@ -60,6 +60,8 @@ public sealed class Game : GameBase
         ref BoxColliderComponent groundCollider = ref world.Set<BoxColliderComponent>(ground);
         groundCollider.Offset = Vector3.Zero;
         groundCollider.Size = new Vector3(40.0f, 1.0f, 40.0f);
+
+        Terrain.Generate(size: 40.0f, vertexCount: 33);
     }
 
     protected override void OnSceneLoaded(World world)
