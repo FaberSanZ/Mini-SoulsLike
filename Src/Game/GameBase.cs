@@ -130,12 +130,15 @@ public abstract class GameBase : IDisposable
                     OnDrawImGui(world);
                     UpdateCamera(world);
                 }
-
                 _renderer.BeginFrame();
 
-                if (activeScene is not null) Render(activeScene.World);
+                if (activeScene is not null)
+                    Render(activeScene.World);
+
+                _renderer.ResolveMsaa();
 
                 _imgui.Render();
+
                 _renderer.Present();
             }
 
@@ -226,7 +229,9 @@ public abstract class GameBase : IDisposable
 
             InstanceData instance = new()
             {
-                World = Matrix4x4.CreateScale(transform.Scale) * Matrix4x4.CreateFromQuaternion(transform.Rotation) * Matrix4x4.CreateTranslation(transform.Position),
+                World = Matrix4x4.CreateScale(transform.Scale) *
+                        Matrix4x4.CreateFromQuaternion(transform.Rotation) *
+                        Matrix4x4.CreateTranslation(transform.Position),
                 BaseColor = model.Color
             };
 
@@ -240,6 +245,8 @@ public abstract class GameBase : IDisposable
 
             _renderer.DrawModel(model.Model, in instance, skeletonState);
         }
+
+        _physicsDebug.Draw(world, _renderer);
     }
 
     public void Dispose()

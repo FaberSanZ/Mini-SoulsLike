@@ -116,6 +116,9 @@ public sealed class PhysicsSystem : IDisposable
             float mass = MathF.Max(rigidbody.Mass, 0.001f);
             BodyInertia inertia = computeInertia(mass);
 
+            if (world.Has<PlayerComponent>(entity))
+                inertia.InverseInertiaTensor = default;
+
             handle = Simulation.Bodies.Add(BodyDescription.CreateDynamic(pose, inertia, shapeIndex, 0.01f));
         }
 
@@ -192,6 +195,41 @@ public sealed class PhysicsSystem : IDisposable
             return world.Get<BoxColliderComponent>(entity).Offset;
 
         return Vector3.Zero;
+    }
+
+    public void SetLinearVelocity(Entity entity, Vector3 velocity)
+    {
+        if (!_bodies.TryGetValue(entity, out BodyHandle handle))
+            return;
+
+        BodyReference body = Simulation.Bodies[handle];
+        body.Awake = true;
+        body.Velocity.Linear = velocity;
+    }
+
+    public void SetHorizontalVelocity(Entity entity, Vector3 velocity)
+    {
+        if (!_bodies.TryGetValue(entity, out BodyHandle handle))
+            return;
+
+        BodyReference body = Simulation.Bodies[handle];
+        body.Awake = true;
+
+        Vector3 current = body.Velocity.Linear;
+        current.X = velocity.X;
+        current.Z = velocity.Z;
+
+        body.Velocity.Linear = current;
+    }
+
+    public void SetOrientation(Entity entity, Quaternion orientation)
+    {
+        if (!_bodies.TryGetValue(entity, out BodyHandle handle))
+            return;
+
+        BodyReference body = Simulation.Bodies[handle];
+        body.Awake = true;
+        body.Pose.Orientation = orientation;
     }
 
     private void CreateSimulation()

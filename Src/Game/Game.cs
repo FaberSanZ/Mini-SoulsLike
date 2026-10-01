@@ -45,9 +45,9 @@ public sealed class Game : GameBase
             rigidbody.AngularVelocity = Vector3.Zero;
 
             ref CapsuleColliderComponent collider = ref world.Set<CapsuleColliderComponent>(entity);
-            collider.Offset = new Vector3(0.0f, 0.9f, 0.0f);
-            collider.Radius = 0.45f;
-            collider.Length = 0.9f;
+            collider.Offset = new Vector3(0.0f, 2.0f, 0.0f);
+            collider.Radius = 0.65f;
+            collider.Length = 3.2f;
         }
 
         Entity ground = CreateEntity(world, "Ground");
@@ -185,6 +185,7 @@ public sealed class Game : GameBase
 
             if (deathPressed)
             {
+                Physics.SetHorizontalVelocity(entity, Vector3.Zero);
                 SetPlayerState(world, entity, ref player, PlayerState.Death);
                 continue;
             }
@@ -195,17 +196,21 @@ public sealed class Game : GameBase
             {
                 if (!AnimationFinished(world, entity))
                 {
-                    transform.Position.X += player.RollDirection.X * _rollSpeed * deltaTime;
-                    transform.Position.Z += player.RollDirection.Z * _rollSpeed * deltaTime;
+                    Physics.SetHorizontalVelocity(entity, player.RollDirection * _rollSpeed);
                     continue;
                 }
 
+                Physics.SetHorizontalVelocity(entity, Vector3.Zero);
                 SetPlayerState(world, entity, ref player, PlayerState.Idle);
             }
 
             if (player.State == PlayerState.Attack)
             {
-                if (!AnimationFinished(world, entity)) continue;
+                Physics.SetHorizontalVelocity(entity, Vector3.Zero);
+
+                if (!AnimationFinished(world, entity))
+                    continue;
+
                 SetPlayerState(world, entity, ref player, PlayerState.Idle);
             }
 
@@ -214,6 +219,7 @@ public sealed class Game : GameBase
 
             if (attackPressed)
             {
+                Physics.SetHorizontalVelocity(entity, Vector3.Zero);
                 SetPlayerState(world, entity, ref player, PlayerState.Attack);
                 continue;
             }
@@ -235,6 +241,7 @@ public sealed class Game : GameBase
 
             if (!moving)
             {
+                Physics.SetHorizontalVelocity(entity, Vector3.Zero);
                 SetPlayerState(world, entity, ref player, PlayerState.Idle);
                 continue;
             }
@@ -242,10 +249,17 @@ public sealed class Game : GameBase
             bool running = GameInput.IsKeyDown(KeyCode.Shift);
             float speed = running ? _runSpeed : _walkSpeed;
 
-            transform.Position.X += movementDirection.X * speed * deltaTime;
-            transform.Position.Z += movementDirection.Z * speed * deltaTime;
+            //transform.Position.X += movementDirection.X * speed * deltaTime;
+            //transform.Position.Z += movementDirection.Z * speed * deltaTime;
+
+            //FaceDirection(ref transform, movementDirection, deltaTime, _playerRotationSpeed);
+
+            Physics.SetHorizontalVelocity(entity, movementDirection * speed);
 
             FaceDirection(ref transform, movementDirection, deltaTime, _playerRotationSpeed);
+            Physics.SetOrientation(entity, transform.Rotation);
+
+
             SetPlayerState(world, entity, ref player, running ? PlayerState.Run : PlayerState.Walk);
         }
     }

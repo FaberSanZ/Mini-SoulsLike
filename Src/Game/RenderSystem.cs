@@ -25,10 +25,24 @@ public sealed class RenderSystem : IDisposable
     private ID3D11DeviceContext? _deviceContext;
     private IDXGIFactory2? _factory;
     private IDXGISwapChain1? _swapChain;
+    //private ID3D11Texture2D? _backBuffer;
+    //private ID3D11RenderTargetView? _renderTargetView;
+    //private ID3D11Texture2D? _depthStencilBuffer;
+    //private ID3D11DepthStencilView? _depthStencilView;
+
+
     private ID3D11Texture2D? _backBuffer;
     private ID3D11RenderTargetView? _renderTargetView;
+
+    private ID3D11Texture2D? _msaaColorBuffer;
+    private ID3D11RenderTargetView? _msaaRenderTargetView;
+
     private ID3D11Texture2D? _depthStencilBuffer;
     private ID3D11DepthStencilView? _depthStencilView;
+
+    private const uint MsaaSampleCount = 8;
+
+
     private ID3D11DepthStencilState? _depthStencilState;
     private ID3D11RasterizerState? _rasterizerState;
     private ID3D11VertexShader? _vertexShader;
@@ -72,6 +86,8 @@ public sealed class RenderSystem : IDisposable
         public Vector3 Position;
         public Vector4 Color;
     }
+
+
 
     public uint Width { get; private set; }
     public uint Height { get; private set; }
@@ -157,7 +173,7 @@ public sealed class RenderSystem : IDisposable
         _renderTargetView = _device.CreateRenderTargetView(_backBuffer);
 
         CreateRasterizer();
-        CreateDepthBuffer();
+        CreateMsaaTargets();
         CreateShaders();
         CreateCameraBuffer();
         CreateSingleInstanceBuffer();
@@ -316,9 +332,15 @@ public sealed class RenderSystem : IDisposable
         _boundMaterialBuffer = null;
 
         _deviceContext!.UpdateSubresource(_cameraData, _cameraBuffer!);
-        _deviceContext.ClearRenderTargetView(_renderTargetView!, new Color4(0.0f, 0.2f, 0.4f, 1.0f));
+
+
+        _deviceContext.ClearRenderTargetView(_msaaRenderTargetView!, new Color4(0.0f, 0.2f, 0.4f, 1.0f));
         _deviceContext.ClearDepthStencilView(_depthStencilView!, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1.0f, 0);
-        _deviceContext.OMSetRenderTargets(_renderTargetView!, _depthStencilView);
+
+        _deviceContext.OMSetRenderTargets(_msaaRenderTargetView!, _depthStencilView);
+
+
+
         _deviceContext.OMSetDepthStencilState(_depthStencilState, 1);
         _deviceContext.RSSetState(_rasterizerState);
         _deviceContext.RSSetViewport(new Viewport(Width, Height));
@@ -389,6 +411,21 @@ public sealed class RenderSystem : IDisposable
         }
     }
 
+
+    public void ResolveMsaa()
+    {
+        _deviceContext!.UnsetRenderTargets();
+
+        _deviceContext.ResolveSubresource(
+            _backBuffer!,
+            0,
+            _msaaColorBuffer!,
+            0,
+            Format.R8G8B8A8_UNorm);
+
+        _deviceContext.OMSetRenderTargets(_renderTargetView!, null);
+    }
+
     public void Present() => _swapChain!.Present(0, PresentFlags.AllowTearing);
 
     private ID3D11ShaderResourceView GetJointView(SkeletonState? skeleton, int skinIndex)
@@ -448,11 +485,49 @@ public sealed class RenderSystem : IDisposable
 
     private void CreateRasterizer() => _rasterizerState = _device!.CreateRasterizerState(RasterizerDescription.CullNone);
 
-    private void CreateDepthBuffer()
+    private void CreateMsaaTargets()
     {
-        _depthStencilState = _device!.CreateDepthStencilState(new DepthStencilDescription(true, DepthWriteMask.All, ComparisonFunction.Less));
-        _depthStencilBuffer = _device.CreateTexture2D(Format.D24_UNorm_S8_UInt, Width, Height, mipLevels: 1, bindFlags: BindFlags.DepthStencil);
+        uint colorQualityLevels = _device!.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, MsaaSampleCount);
+        uint depthQualityLevels = _device.CheckMultisampleQualityLevels(Format.D24_UNorm_S8_UInt, MsaaSampleCount);
+
+        if (colorQualityLevels == 0 || depthQualityLevels == 0)
+            throw new InvalidOperationException($"{MsaaSampleCount}x MSAA is not supported.");
+
+        Texture2DDescription colorDescription = new(
+            Format.R8G8B8A8_UNorm,
+            Width,
+            Height,
+            arraySize: 1,
+            mipLevels: 1,
+            bindFlags: BindFlags.RenderTarget,
+            usage: ResourceUsage.Default,
+            cpuAccessFlags: CpuAccessFlags.None,
+            sampleCount: MsaaSampleCount,
+            sampleQuality: 0);
+
+        _msaaColorBuffer = _device.CreateTexture2D(colorDescription);
+        _msaaRenderTargetView = _device.CreateRenderTargetView(_msaaColorBuffer);
+
+        Texture2DDescription depthDescription = new(
+            Format.D24_UNorm_S8_UInt,
+            Width,
+            Height,
+            arraySize: 1,
+            mipLevels: 1,
+            bindFlags: BindFlags.DepthStencil,
+            usage: ResourceUsage.Default,
+            cpuAccessFlags: CpuAccessFlags.None,
+            sampleCount: MsaaSampleCount,
+            sampleQuality: 0);
+
+        _depthStencilBuffer = _device.CreateTexture2D(depthDescription);
         _depthStencilView = _device.CreateDepthStencilView(_depthStencilBuffer);
+
+        _depthStencilState = _device.CreateDepthStencilState(
+            new DepthStencilDescription(
+                true,
+                DepthWriteMask.All,
+                ComparisonFunction.Less));
     }
 
     private void CreateShaders()
